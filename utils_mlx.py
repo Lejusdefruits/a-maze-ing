@@ -80,7 +80,7 @@ def put_pixel_to_img(img: MlxImage, x: int, y: int, color: int) -> None:
         return
     bpp = _bytes_per_pixel(img)
     offset = y * img.line_length + x * bpp
-    img.data[offset : offset + bpp] = _color_bytes(color, img.endian, bpp)
+    img.data[offset: offset + bpp] = _color_bytes(color, img.endian, bpp)
 
 
 def get_pixel_color(img: MlxImage, x: int, y: int) -> int:
@@ -89,7 +89,7 @@ def get_pixel_color(img: MlxImage, x: int, y: int) -> int:
         return 0
     bpp = _bytes_per_pixel(img)
     offset = y * img.line_length + x * bpp
-    pixel = img.data[offset : offset + bpp]
+    pixel = img.data[offset: offset + bpp]
     order = "little" if img.endian == 0 else "big"
     return int.from_bytes(pixel, order)
 
@@ -102,7 +102,7 @@ def fill_img_color(img: MlxImage, color: int) -> None:
     row_length = img.width * bpp
     for y in range(img.height):
         start = y * img.line_length
-        img.data[start : start + row_length] = row
+        img.data[start: start + row_length] = row
 
 
 def fill_rect(
