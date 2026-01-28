@@ -97,10 +97,10 @@ def read(file_name: str) -> str:
 
 def parse_coords(buffer: Entry) -> bool:
     return (
-        buffer.exit[0] > buffer.width
-        or buffer.exit[1] > buffer.height
-        or buffer.entry[0] > buffer.width
-        or buffer.entry[1] > buffer.height
+        buffer.exit[0] >= buffer.width
+        or buffer.exit[1] >= buffer.height
+        or buffer.entry[0] >= buffer.width
+        or buffer.entry[1] >= buffer.height
         or any(n < 0 for n in [*buffer.entry, *buffer.exit])
     )
 
@@ -111,6 +111,14 @@ def parse(argv: str) -> Entry:
     buffer = Entry(read(argv[1]))
     if parse_coords(buffer):
         raise ValueError("Coordinates not valid")
-    buffer.width = buffer.width if buffer.width % 2 != 0 else buffer.width + 1
-    buffer.height = buffer.height if buffer.height % 2 != 0 else buffer.height + 1
+    if buffer.width % 2 != 0:
+        buffer.width = buffer.width
+    else:
+        print(f"Width: {buffer.width} is pair so algo is not gonna work i add one")
+        buffer.width += 1
+    if buffer.height % 2 != 0:
+        buffer.height = buffer.height
+    else:
+        print(f"Height: {buffer.height} is pair so algo is not gonna work i add one")
+        buffer.height += 1
     return buffer

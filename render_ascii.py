@@ -2,16 +2,17 @@ from main import Maze, Cell, Colors
 
 
 def get_caracter(cell: Cell):
-    if cell.value == 1 or cell.value == 42:  # wall
+    if cell.value in [
+        0,
+        1,
+        4,
+        42
+    ]:  # wall
         return "█"
-    elif cell.value == 0:  # empty
-        return " "
-    elif cell.value == 2:  # entry
-        return "a"
-    elif cell.value == 3:  # exit
-        return "b"
+    elif cell.value == 3 or cell.value == 2:  # exit
+        return "◼"
     else:
-        raise ValueError("Invalid value of cell {cell.x}, {cell.y}: {cell.value}")
+        raise ValueError(f"Invalid value of cell {cell.x}, {cell.y}: {cell.value}")
 
 
 def render(maze: Maze):
