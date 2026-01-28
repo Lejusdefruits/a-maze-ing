@@ -1,4 +1,4 @@
-from random import shuffle
+from random import random, shuffle
 
 
 def get_neighbors(maze, visited, x, y):
@@ -44,3 +44,16 @@ def generate(maze):
 
     start_x, start_y = maze.entry
     backtrack(maze, visited, start_x, start_y)
+
+    if not maze.perfect:
+        for y in range(1, maze.height - 1):
+            for x in range(1, maze.width - 1):
+                if maze.grid[y][x].value == 1:
+                    if random() < 0.05:  # 5% chance to remove a wall
+                        count_neighbors = 0
+                        params = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+                        for dx, dy in params:
+                            if maze.grid[y + dy][x + dx].value != 1:
+                                count_neighbors += 1
+                        if count_neighbors >= 2:
+                            maze.grid[y][x].dig()

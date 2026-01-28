@@ -33,8 +33,8 @@ class Entry:
         ]
 
         data = dict(entry_tab)
-        data["DISCO"] = "False"
-        data["RENDER"] = "ascii"
+        data.setdefault("DISCO", "False")
+        data.setdefault("RENDER", "ascii")
         self.validate(entry_tab)
         self.width = int(data["WIDTH"])
         self.height = int(data["HEIGHT"])
@@ -90,7 +90,7 @@ def read(file_name: str) -> str:
         buffer = default_config(file_name)
     else:
         with open(file_name, "r", encoding="utf-8") as f:
-            buffer: str = f.read()
+            buffer = f.read()
     buffer = format_read(buffer)
     return buffer
 

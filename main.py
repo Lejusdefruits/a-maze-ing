@@ -1,5 +1,12 @@
-from sys import argv
-from parse import parse, Entry
+import sys
+from sys import argv, stdout
+
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
+
+sys.setrecursionlimit(100000)
+
+from parse import Entry, parse
 
 
 class Colors:
@@ -24,7 +31,8 @@ class Cell:
         self.y = y
 
     def dig(self):
-        self.value = 0
+        if self.value != 2 and self.value != 3:
+            self.value = 0
 
 
 class Maze:
@@ -37,17 +45,15 @@ class Maze:
         self.grid = [
             [Cell(x, y) for x in range(self.width)] for y in range(self.height)
         ]
-        self.grid[self.entry[0]][self.entry[1]].color = Colors.YELLOW
-        self.grid[self.entry[0]][self.entry[1]].value = 2
-        self.grid[self.exit[0]][self.exit[1]].value = 3
+        self.grid[self.entry[1]][self.entry[0]].color = Colors.YELLOW
+        self.grid[self.entry[1]][self.entry[0]].value = 2
+        self.grid[self.exit[1]][self.exit[0]].value = 3
 
     def is_valid_cell(self, x, y):
         return (
             not self.is_border(x, y)
-            and x, y != self.entry
-            and x, y != self.exit
             and not (x < 0 or y < 0 or x >= self.width or y >= self.height)
-            and self.grid[x][y].value != 42
+            and self.grid[y][x].value != 42
         )
 
     def is_border(self, x, y):
@@ -92,6 +98,12 @@ class Maze:
             if self.is_valid_cell(x_start + dx, y_start + dy):
                 self.grid[y_start + dy][x_start + dx].value = 42
                 self.grid[y_start + dy][x_start + dx].color = Colors.BLUE
+
+        holes_4 = [(1, 0), (1, 1)]
+        holes_2 = [(4, 1), (5, 1), (5, 3), (6, 3)]
+        for dx, dy in holes_4 + holes_2:
+            if self.is_valid_cell(x_start + dx, y_start + dy):
+                self.grid[y_start + dy][x_start + dx].value = 0
         return 0
 
 
@@ -100,8 +112,8 @@ if __name__ == "__main__":
     args.print_o()
     m = Maze(args)
     m.place_42()
-    from render_ascii import render
     from generate import generate
+    from render_ascii import render
 
     generate(m)
     render(m)
