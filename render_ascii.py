@@ -1,4 +1,5 @@
 from main import Maze, Cell, Colors
+from os import system, name
 
 
 def get_caracter(cell: Cell):
@@ -16,13 +17,13 @@ def get_caracter(cell: Cell):
 
 
 def render(maze: Maze):
-    buffer = ""
+    system("cls" if name == "nt" else "clear")
+    reset = "\033[0m"
     for i in range(maze.height):
         current_line = ""
         for j in range(maze.width):
             current_cell: Cell = maze.grid[i][j]
             current_line += (
-                f"{current_cell.color}{get_caracter(current_cell)}{Colors.RESET}"
+                f"{current_cell.color}{get_caracter(current_cell)}{reset}"
             )
-        buffer += f"{current_line}\n"
-    print(buffer)
+        print(f"{current_line}")
