@@ -75,6 +75,7 @@ def outpoute(maze: Maze):
         for row in grid:
             line = "".join(get_hex_cell(cell_obj) for cell_obj in row)
             f.write(line + "\n")
+        f.write("\n")
         f.write(f"{maze.entry[0]} {maze.entry[1]}\n")
         f.write(f"{maze.exit[0]} {maze.exit[1]}\n")
         f.write(f"{get_solver(maze)}\n")
