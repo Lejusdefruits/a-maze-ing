@@ -1,14 +1,9 @@
-from main import Maze, Cell, Colors
+from main import Maze, Cell
 from os import system, name
 
 
 def get_caracter(cell: Cell):
-    if cell.value in [
-        0,
-        1,
-        4,
-        42
-    ]:  # wall
+    if cell.value in [0, 1, 4, 42]:  # wall
         return "█"
     elif cell.value == 3 or cell.value == 2:  # exit
         return "◼"

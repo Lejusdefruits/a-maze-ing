@@ -40,4 +40,4 @@ def solver(maze: Maze) -> None:
             if not maze.grid[x][y].value in [2, 3]:
                 maze.grid[x][y].color = Colors.BRIGHT_YELLOW
                 maze.grid[x][y].value = 4
-    return None
+    return path

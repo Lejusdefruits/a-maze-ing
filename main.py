@@ -4,6 +4,7 @@ from random import shuffle, randint
 from parse import Entry, parse
 from time import sleep
 
+
 sys.setrecursionlimit(100000)
 
 
@@ -15,7 +16,6 @@ class Colors:
     RED = "\033[31m"
     BRIGHT_BLUE = "\033[94m"
     BRIGHT_GREEN = "\033[92m"
-    # Liste pour le random (sans RESET)
     ALL_NAMES = [
         "RED",
         "GREEN",
@@ -66,12 +66,14 @@ class Cell:
 
 class Maze:
     def __init__(self, args: Entry):
+        self.solution = []
         self.width = args.width
         self.height = args.height
         self.entry = args.entry
         self.exit = args.exit
+        self.output_file = args.output_file
         self.elements = ["PATH", "WALL", "ENTRY", "EXIT", "SOL", "42"]
-        self.perfect = args.perfect  # Correction du bug AttributeError
+        self.perfect = args.perfect
         self.grid = [
             [Cell(x, y) for x in range(self.width)] for y in range(self.height)
         ]
@@ -130,14 +132,13 @@ def get_tab_color(
 
 
 def apply_theme(maze, theme, show_sol):
-    # theme = [Path, Wall, Entry, Exit, Sol, 42]
     from render_ascii import render
+
     val_map = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 42: 5}
     for row in maze.grid:
         for cell in row:
             idx = val_map.get(cell.value)
             if idx is not None:
-                # Si c'est la solution (4) et qu'on doit la cacher, on met la couleur du sol (0)
                 if cell.value == 4 and not show_sol:
                     cell.color = theme[0]
 
@@ -193,14 +194,13 @@ def menu(args) -> None:
     from render_ascii import render
     from generate import generate
     from solver import solver
+    from output import outpoute
 
-    # Init
     m = Maze(args)
     m.place_42()
     generate(m)
-    solver(m)
+    m.solution = solver(m)
 
-    # Couleurs par défaut (Path, Wall, Entry, Exit, Sol, 42)
     current_theme = [
         Colors.BLACK,
         Colors.WHITE,
@@ -223,7 +223,7 @@ def menu(args) -> None:
             m = Maze(args)
             m.place_42()
             generate(m)
-            solver(m)
+            m.solution = solver(m)
             apply_theme(m, current_theme, show_sol)
             render(m)
         elif choice == "2":
@@ -233,10 +233,10 @@ def menu(args) -> None:
         elif choice == "3":
             current_theme = color_menu(m, show_sol, current_theme)
         elif choice == "4":
+            outpoute(m)
             break
 
 
 if __name__ == "__main__":
-    # On vérifie qu'on a bien des arguments, sinon on met une liste vide
     args = parse(argv)
     menu(args)

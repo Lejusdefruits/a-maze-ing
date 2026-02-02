@@ -1,4 +1,5 @@
 from pathlib import Path
+from sys import exit
 
 
 class Entry:
@@ -89,8 +90,13 @@ def read(file_name: str) -> str:
     if not Path(file_name).exists():
         buffer = default_config(file_name)
     else:
-        with open(file_name, "r", encoding="utf-8") as f:
-            buffer = f.read()
+        try:
+            with open(file_name, "r", encoding="utf-8") as f:
+                buffer = f.read()
+        except PermissionError:
+            exit(
+                f"STOP : Impossible acces to '{file_name}'. Vérify permissions (chmod)."
+            )
     buffer = format_read(buffer)
     return buffer
 
