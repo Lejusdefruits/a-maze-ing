@@ -8,6 +8,12 @@ class Cell_output:
         self.east = 0
         self.west = 0
 
+    def __str__(self):
+        return f"Cell(N:{self.north}, S:{self.south}, E:{self.east}, W:{self.west})"
+
+    def __repr__(self):
+        return self.__str__()
+
 
 def get_hex_cell(cell_obj):
     value = 0
@@ -19,6 +25,8 @@ def get_hex_cell(cell_obj):
         value += 4
     if cell_obj.west:
         value += 8
+    if format(value, "X") == 'F':
+        print(cell_obj)
     return format(value, "X")
 
 

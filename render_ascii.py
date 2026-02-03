@@ -1,5 +1,6 @@
 from main import Maze, Cell
 from os import system, name
+from parse import error
 
 
 def get_caracter(cell: Cell):
@@ -8,7 +9,7 @@ def get_caracter(cell: Cell):
     elif cell.value == 3 or cell.value == 2:  # exit
         return "◼"
     else:
-        raise ValueError(f"Invalid value of cell {cell.x}, {cell.y}: {cell.value}")
+        error(f"Invalid value of cell {cell.x}, {cell.y}: {cell.value}")
 
 
 def render(maze: Maze):
@@ -18,7 +19,5 @@ def render(maze: Maze):
         current_line = ""
         for j in range(maze.width):
             current_cell: Cell = maze.grid[i][j]
-            current_line += (
-                f"{current_cell.color}{get_caracter(current_cell)}{reset}"
-            )
+            current_line += f"{current_cell.color}{get_caracter(current_cell)}{reset}"
         print(f"{current_line}")

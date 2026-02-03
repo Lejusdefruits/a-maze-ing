@@ -1,5 +1,6 @@
 from main import Maze, Cell, Colors
 from collections import deque
+from parse import error
 
 
 def solver(maze: Maze) -> None:
@@ -40,4 +41,5 @@ def solver(maze: Maze) -> None:
             if not maze.grid[x][y].value in [2, 3]:
                 maze.grid[x][y].color = Colors.BRIGHT_YELLOW
                 maze.grid[x][y].value = 4
-    return path
+        return path
+    error("Path not found")

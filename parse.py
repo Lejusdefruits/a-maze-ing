@@ -2,20 +2,24 @@ from pathlib import Path
 from sys import exit
 
 
+def error(the_error: str):
+    exit("Error : " + the_error)
+
+
 class Entry:
     def validate(self, entry_tab: list) -> bool:
         names_already = {name for name, _ in entry_tab}
         names_missing = set(self.name_args) - names_already
 
         if len(names_missing) > 2:
-            raise ValueError(
+            error(
                 f"{len(names_missing)} missing arguments :"
                 f"{', '.join(names_missing)}"
             )
         elif len(names_missing) > 0:
             for miss in names_missing:
                 if miss != self.name_args[6] and miss != self.name_args[7]:
-                    raise ValueError(
+                    error(
                         f"{len(names_missing)} missing arguments :"
                         f"{', '.join(names_missing)}"
                     )
@@ -29,12 +33,12 @@ class Entry:
             "EXIT",
             "OUTPUT_FILE",
             "PERFECT",
-            "DISCO",
             "RENDER",
+            "SEED"
         ]
 
+        print(entry_tab)
         data = dict(entry_tab)
-        data.setdefault("DISCO", "False")
         data.setdefault("RENDER", "ascii")
         self.validate(entry_tab)
         self.width = int(data["WIDTH"])
@@ -43,8 +47,8 @@ class Entry:
         self.exit = tuple(map(int, data["EXIT"].replace(",", " ").split()))
         self.output_file = data["OUTPUT_FILE"]
         self.perfect = data["PERFECT"] == "True"
-        self.disco = data["DISCO"] == "True"
         self.render = data["RENDER"]
+        self.seed = data["SEED"]
 
     def print_o(self):
         print("\n" + "=" * 30)
@@ -55,9 +59,9 @@ class Entry:
         print(f"  Exit       : {self.exit}")
         print("-" * 30)
         print(f"  Perfect    : {self.perfect}")
-        print(f"  Disco      : {self.disco}")
         print(f"  Render     : {self.render}")
         print(f"  Output     : {self.output_file}")
+        print(f"  Seed     : {self.seed}")
         print("=" * 30 + "\n")
 
 
@@ -66,7 +70,7 @@ def default_config(file_name: str):
         buffer = (
             "WIDTH=51\nHEIGHT=50\nENTRY=1, 1\nEXIT=45, 44\n"
             "OUTPUT_FILE=output.txt\nPERFECT=True\n"
-            "DISCO=True\nRENDER=ascii\n"
+            "RENDER=ascii\nSEED=0\n"
         )
         f.write(buffer)
     return buffer
@@ -81,7 +85,7 @@ def format_read(buffer: str) -> str:
         if len(line) == 0:
             continue
         if len(line.split("=")) != 2:
-            raise ValueError("Format of entry file not valid")
+            error("Format of entry file not valid")
         cleared_lines.append((line.split("=")[0].strip(), line.split("=")[1].strip()))
     return cleared_lines
 
@@ -94,10 +98,9 @@ def read(file_name: str) -> str:
             with open(file_name, "r", encoding="utf-8") as f:
                 buffer = f.read()
         except PermissionError:
-            exit(
-                f"STOP : Impossible acces to '{file_name}'. Vérify permissions (chmod)."
+            error(
+                f"STOP : Impossible acces to '{file_name}'. Verify permissions (chmod)."
             )
-    buffer = format_read(buffer)
     return buffer
 
 
@@ -113,10 +116,10 @@ def parse_coords(buffer: Entry) -> bool:
 
 def parse(argv: str) -> Entry:
     if len(argv) != 2:
-        raise ValueError("Usage: 'python3 a_maze_ing.py config.txt'")
-    buffer = Entry(read(argv[1]))
+        error("Usage: 'python3 a_maze_ing.py config.txt'")
+    buffer = Entry(format_read(read(argv[1])))
     if parse_coords(buffer):
-        raise ValueError("Coordinates not valid")
+        error("Coordinates not valid")
     if buffer.width % 2 != 0:
         buffer.width = buffer.width
     else:

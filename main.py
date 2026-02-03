@@ -3,6 +3,7 @@ from sys import argv
 from random import shuffle, randint
 from parse import Entry, parse
 from time import sleep
+from parse import error
 
 
 sys.setrecursionlimit(100000)
@@ -54,7 +55,7 @@ class Colors:
 
 class Cell:
     def __init__(self, x, y):
-        self.color = Colors.WHITE
+        self.color = Colors.BLACK
         self.value = 1
         self.x = x
         self.y = y
@@ -79,6 +80,7 @@ class Maze:
         ]
         self.grid[self.entry[1]][self.entry[0]].value = 2
         self.grid[self.exit[1]][self.exit[0]].value = 3
+        self.seed = args.seed
 
     def is_valid_cell(self, x, y):
         if 0 <= x < self.width and 0 <= y < self.height:
@@ -115,7 +117,13 @@ class Maze:
         for dx, dy in coords:
             nx, ny = x_start + dx, y_start + dy
             if 0 <= nx < self.width and 0 <= ny < self.height:
+                if self.exit[0] == nx and self.exit[1] == ny:
+                    error(
+                        f"Exit cannot be on coords {self.exit} "
+                        "because 42 draw will be on it"
+                    )
                 self.grid[ny][nx].value = 42
+                self.grid[ny][nx].color = Colors.BRIGHT_BLUE
         return 0
 
 
@@ -197,9 +205,13 @@ def menu(args) -> None:
     from output import outpoute
 
     m = Maze(args)
-    m.place_42()
-    generate(m)
-    m.solution = solver(m)
+    if m.seed != '0':
+        from input import inp
+        m = inp(m.seed)
+    else:
+        m.place_42()
+        generate(m)
+        m.solution = solver(m)
 
     current_theme = [
         Colors.BLACK,
