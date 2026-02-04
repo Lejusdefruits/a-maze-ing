@@ -1,15 +1,16 @@
-from main import Maze, Cell, Colors
+from models import Maze, Cell, Colors
 from collections import deque
 from parse import error
 
 
-def solver(maze: Maze) -> None:
+def solver(maze: Maze) -> list[tuple[int, int]]:
+    """Find the shortest path using Breadth-First Search (BFS)."""
     start = maze.entry
     end = maze.exit
 
     queue = deque([start])
     visited = {start}
-    parents = {start: None}
+    parents: dict[tuple[int, int], tuple[int, int] | None] = {start: None}
     found = False
 
     while queue:
@@ -31,7 +32,7 @@ def solver(maze: Maze) -> None:
 
     if found:
         path = []
-        current = end
+        current: tuple[int, int] | None = end
         while current is not None:
             path.append(current)
             current = parents[current]

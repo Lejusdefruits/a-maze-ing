@@ -1,21 +1,27 @@
-from main import Maze
+from models import Maze
 
 
 class Cell_output:
+    """Helper class to store cell wall configuration for output."""
+
     def __init__(self):
         self.north = 0
         self.south = 0
         self.east = 0
         self.west = 0
 
-    def __str__(self):
-        return f"Cell(N:{self.north}, S:{self.south}, E:{self.east}, W:{self.west})"
+    def __str__(self) -> str:
+        return (
+            f"Cell(N:{self.north}, S:{self.south}, "
+            f"E:{self.east}, W:{self.west})"
+        )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
 
-def get_hex_cell(cell_obj):
+def get_hex_cell(cell_obj: Cell_output) -> str:
+    """Convert a cell's wall configuration to a hexadecimal string."""
     value = 0
     if cell_obj.north:
         value += 1
@@ -26,11 +32,14 @@ def get_hex_cell(cell_obj):
     if cell_obj.west:
         value += 8
     if format(value, "X") == 'F':
-        print(cell_obj)
+        pass
     return format(value, "X")
 
 
-def get_neighbors_map(grid, x, y, width, height):
+def get_neighbors_map(
+    grid: list[list], x: int, y: int, width: int, height: int
+) -> dict[str, int]:
+    """Determine wall status based on neighbor cell values."""
     res = {"north": 1, "south": 1, "west": 1, "east": 1}
 
     if y > 0 and grid[y - 1][x].value in [1, 42]:
@@ -45,12 +54,15 @@ def get_neighbors_map(grid, x, y, width, height):
     return res
 
 
-def parse_grid(maze) -> list:
-    new_grid = [[Cell_output() for _ in range(maze.width)] for _ in range(maze.height)]
+def parse_grid(maze: Maze) -> list[list[Cell_output]]:
+    """Convert the maze grid into a grid of Cell_output objects."""
+    new_grid = [[Cell_output() for _ in range(maze.width)]
+                for _ in range(maze.height)]
 
     for y in range(maze.height):
         for x in range(maze.width):
-            neighbors = get_neighbors_map(maze.grid, x, y, maze.width, maze.height)
+            neighbors = get_neighbors_map(
+                maze.grid, x, y, maze.width, maze.height)
             target = new_grid[y][x]
             target.north = neighbors["north"]
             target.south = neighbors["south"]
@@ -59,7 +71,8 @@ def parse_grid(maze) -> list:
     return new_grid
 
 
-def get_solver(maze: Maze):
+def get_solver(maze: Maze) -> str:
+    """Convert the solution path into a string of directions (NSEW)."""
     result = ""
     for i, current in enumerate(maze.solution[:-1]):
         x, y = current
@@ -76,7 +89,8 @@ def get_solver(maze: Maze):
     return result
 
 
-def outpoute(maze: Maze):
+def outpoute(maze: Maze) -> None:
+    """Write the maze structure and solution to the output file."""
     grid = parse_grid(maze)
 
     with open(maze.output_file, "w") as f:

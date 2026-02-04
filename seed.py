@@ -14,8 +14,8 @@ def get_seed(fichier_txt: str):
     return seed
 
 
-def get_lab(seed: str):
-    seed = int(seed)
+def get_lab(seed_str: str):
+    seed = int(seed_str)
     if seed == 0:
         return ""
 
@@ -30,12 +30,9 @@ def get_lab(seed: str):
     return contenu
 
 
-seed = get_seed("output.txt")
-
-labyrinthe = get_lab(seed)
-
-with open("labyrinthe_reconstitue.txt", "w") as f:
-    f.write(labyrinthe)
-
 if __name__ == '__main__':
+    seed = get_seed("output.txt")
+    labyrinthe = get_lab(seed)
+    with open("labyrinthe_reconstitue.txt", "w") as f:
+        f.write(labyrinthe)
     print(get_seed('output.txt'))

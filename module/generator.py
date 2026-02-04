@@ -1,5 +1,5 @@
 from random import random, shuffle
-from models import Maze
+from .models import Maze
 
 
 def get_neighbors(
@@ -50,8 +50,11 @@ def generate(maze: Maze) -> None:
             if maze.grid[y][x].value == 42:
                 visited[y][x] = True
 
-    start_x, start_y = maze.entry
-    backtrack(maze, visited, start_x, start_y)
+    try:
+        start_x, start_y = maze.entry
+        backtrack(maze, visited, start_x, start_y)
+    except RecursionError:
+        print("Recursion limit reached. Maze might be incomplete.")
 
     if not maze.perfect:
         _make_imperfect(maze)

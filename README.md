@@ -1,6 +1,6 @@
 # A-Maze-ing: This is the way
 
-*This project has been created as part of the 42 curriculum by jubrouss, nithomas.*
+*This project has been created as part of the 42 curriculum by [jubrouss](https://profile-v3.intra.42.fr/users/jubrouss), [nithomas](https://profile-v3.intra.42.fr/users/nithomas).*
 
 ## Description
 
@@ -210,7 +210,7 @@ python -m build
 
 ### Roles
 
-**jubrouss, nithomas** — Developers
+**[jubrouss](https://profile-v3.intra.42.fr/users/jubrouss), [nithomas](https://profile-v3.intra.42.fr/users/nithomas)** — Developers
 - Core algorithm implementation (generation and solving)
 - Terminal rendering and interactive user interface
 - Configuration parsing and data validation
@@ -290,4 +290,4 @@ This project is part of the 42 curriculum.
 
 ---
 
-*For questions or contributions, contact jubrouss, nithomas.*
+*For questions or contributions, contact [jubrouss](https://profile-v3.intra.42.fr/users/jubrouss), [nithomas](https://profile-v3.intra.42.fr/users/nithomas).*

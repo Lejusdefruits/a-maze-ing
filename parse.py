@@ -2,12 +2,19 @@ from pathlib import Path
 from sys import exit
 
 
-def error(the_error: str):
+from typing import NoReturn
+
+
+def error(the_error: str) -> NoReturn:
+    """Print an error message and exit the program."""
     exit("Error : " + the_error)
 
 
 class Entry:
-    def validate(self, entry_tab: list) -> bool:
+    """Class to parse and validate maze configuration entries."""
+
+    def validate(self, entry_tab: list[tuple[str, str]]) -> bool:
+        """Check if all required configuration arguments are present."""
         names_already = {name for name, _ in entry_tab}
         names_missing = set(self.name_args) - names_already
 
@@ -25,7 +32,7 @@ class Entry:
                     )
         return True
 
-    def __init__(self, entry_tab):
+    def __init__(self, entry_tab: list[tuple[str, str]]):
         self.name_args = [
             "WIDTH",
             "HEIGHT",
@@ -50,7 +57,8 @@ class Entry:
         self.render = data["RENDER"]
         self.seed = data["SEED"]
 
-    def print_o(self):
+    def print_o(self) -> None:
+        """Display the current maze configuration."""
         print("\n" + "=" * 30)
         print(f"{'MAZE CONFIGURATION':^30}")
         print("=" * 30)
@@ -65,7 +73,8 @@ class Entry:
         print("=" * 30 + "\n")
 
 
-def default_config(file_name: str):
+def default_config(file_name: str) -> str:
+    """Create a default configuration file if none exists."""
     with open(file_name, "w") as f:
         buffer = (
             "WIDTH=51\nHEIGHT=50\nENTRY=1, 1\nEXIT=45, 44\n"
@@ -76,7 +85,8 @@ def default_config(file_name: str):
     return buffer
 
 
-def format_read(buffer: str) -> str:
+def format_read(buffer: str) -> list[tuple[str, str]]:
+    """Parse the configuration file content into a list of key-value pairs."""
     lines = [line.strip() for line in buffer.split("\n")]
     cleared_lines = []
     for line in lines:
@@ -86,11 +96,13 @@ def format_read(buffer: str) -> str:
             continue
         if len(line.split("=")) != 2:
             error("Format of entry file not valid")
-        cleared_lines.append((line.split("=")[0].strip(), line.split("=")[1].strip()))
+        cleared_lines.append(
+            (line.split("=")[0].strip(), line.split("=")[1].strip()))
     return cleared_lines
 
 
 def read(file_name: str) -> str:
+    """Read content from the configuration file."""
     if not Path(file_name).exists():
         buffer = default_config(file_name)
     else:
@@ -99,12 +111,14 @@ def read(file_name: str) -> str:
                 buffer = f.read()
         except PermissionError:
             error(
-                f"STOP : Impossible acces to '{file_name}'. Verify permissions (chmod)."
+                f"STOP : Impossible acces to '{file_name}'. "
+                "Verify permissions (chmod)."
             )
     return buffer
 
 
 def parse_coords(buffer: Entry) -> bool:
+    """Check if entry and exit coordinates are within bounds."""
     return (
         buffer.exit[0] >= buffer.width
         or buffer.exit[1] >= buffer.height
@@ -114,7 +128,8 @@ def parse_coords(buffer: Entry) -> bool:
     )
 
 
-def parse(argv: str) -> Entry:
+def parse(argv: list[str]) -> Entry:
+    """Parse command-line arguments and initialize configuration."""
     if len(argv) != 2:
         error("Usage: 'python3 a_maze_ing.py config.txt'")
     buffer = Entry(format_read(read(argv[1])))
@@ -123,11 +138,17 @@ def parse(argv: str) -> Entry:
     if buffer.width % 2 != 0:
         buffer.width = buffer.width
     else:
-        print(f"Width: {buffer.width} is pair so algo is not gonna work i add one")
+        print(
+            f"Width: {buffer.width} is pair "
+            "so algo is not gonna work i add one"
+        )
         buffer.width += 1
     if buffer.height % 2 != 0:
         buffer.height = buffer.height
     else:
-        print(f"Height: {buffer.height} is pair so algo is not gonna work i add one")
+        print(
+            f"Height: {buffer.height} is pair "
+            "so algo is not gonna work i add one"
+        )
         buffer.height += 1
     return buffer

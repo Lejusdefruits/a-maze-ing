@@ -1,6 +1,5 @@
-from models import Maze, Cell
+from .models import Maze, Cell
 from os import system, name
-from parse import error
 
 
 def get_caracter(cell: Cell) -> str:
@@ -10,7 +9,9 @@ def get_caracter(cell: Cell) -> str:
     elif cell.value == 3 or cell.value == 2:  # exit
         return "◼"
     else:
-        error(f"Invalid value of cell {cell.x}, {cell.y}: {cell.value}")
+        raise ValueError(
+            f"Invalid value of cell {cell.x}, {cell.y}: {cell.value}"
+        )
 
 
 def render(maze: Maze) -> None:
