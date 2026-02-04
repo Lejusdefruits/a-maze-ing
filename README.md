@@ -25,11 +25,7 @@ A-Maze-ing is a Python maze generator that creates perfect or imperfect mazes us
 git clone <repo_url>
 cd a-maze-ing
 
-# Set up virtual environment (recommended)
-python3 -m venv venv
-source venv/bin/activate
-
-# Install dependencies
+# Install dependencies (automatically creates a virtual environment)
 make install
 ```
 
@@ -112,59 +108,54 @@ For imperfect mazes (`PERFECT=False`), after generation we randomly remove 5% of
 
 ### Reusable Package: `mazegen`
 
-The maze generation logic is packaged as a pip-installable module.
+### Reusable Module: `module/`
 
-**Package file:** `mazegen-1.0.0-py3-none-any.whl` (located at repository root)
+The maze generation logic is isolated in the `module/` directory, allowing you to use it in other projects without the CLI constraints.
 
-### What's Reusable?
+### What's in the Module?
 
-**1. `Maze` class** (`main.py`)
-- Core data structure with grid, entry, exit, solution
-- Cell validation and "42" pattern placement
+**1. `module/models.py`**
+- `Maze`: Core class, initialized directly with arguments (width, height, etc.)
+- `Cell`: Represents individual grid cells
 
-**2. `generate()` function** (`generate.py`)
-- Recursive backtracker implementation
-- Perfect/imperfect maze generation
+**2. `module/generator.py`**
+- `generate(maze)`: Runs the Recursive Backtracker on the given maze instance
 
-**3. `solver()` function** (`solver.py`)
-- BFS shortest path finder
-- Returns list of (x,y) coordinates
+**3. `module/renderer.py`**
+- `render(maze)`: Displays the maze in the terminal with colors
+
+**4. `module/seed.py`**
+- Seed management utilities
 
 ### Usage Example
 
-```python
-from mazegen import Maze, generate, solver
-from parse import Entry
-
-# Create configuration
-config = Entry([
-    ("WIDTH", "21"),
-    ("HEIGHT", "21"),
-    ("ENTRY", "1,1"),
-    ("EXIT", "19,19"),
-    ("OUTPUT_FILE", "output.txt"),
-    ("PERFECT", "True")
-])
-
-# Generate and solve maze
-maze = Maze(config)
-maze.place_42()        # Add "42" pattern
-generate(maze)         # Generate maze
-solution = solver(maze)  # Find shortest path
-
-# Access data
-print(f"Solution: {len(solution)} steps")
-for y, row in enumerate(maze.grid):
-    for x, cell in enumerate(row):
-        print(cell.value, end=" ")  # 0=path, 1=wall, 2=entry, 3=exit
+You can verify the module using the provided test script:
+```bash
+./venv/bin/python3 test_module.py
 ```
 
-### Building the Package
+Code example:
+```python
+from module import Maze, generate, render
 
-```bash
-pip install build
-python -m build
-# Creates: dist/mazegen-1.0.0-py3-none-any.whl
+# Initialize a 21x21 perfect maze
+maze = Maze(
+    width=21,
+    height=21,
+    entry=(1, 1),
+    exit=(19, 19),
+    seed="test_seed",
+    perfect=True
+)
+
+# Optional: Add the "42" pattern
+maze.place_42()
+
+# Generate the path
+generate(maze)
+
+# Render output
+render(maze)
 ```
 
 ---
