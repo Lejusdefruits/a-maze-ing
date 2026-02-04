@@ -1,18 +1,30 @@
 # A-Maze-ing: This is the way
 
-*This project has been created as part of the 42 curriculum by [jubrouss](https://profile-v3.intra.42.fr/users/jubrouss), [nithomas](https://profile-v3.intra.42.fr/users/nithomas).*
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![License](https://img.shields.io/badge/License-42-black)
+![Code Style](https://img.shields.io/badge/code%20style-flake8-green)
+
+*This project has been created as part of the 42 curriculum by [jubrouss](https://profile-v3.intra.42.fr/users/jubrouss) & [nithomas](https://profile-v3.intra.42.fr/users/nithomas).*
 
 ## Description
 
-A-Maze-ing is a Python maze generator that creates perfect or imperfect mazes using the Recursive Backtracker algorithm. The program reads configuration from a text file, generates a random maze with a hidden "42" pattern, finds the shortest path from entry to exit, and outputs the result in hexadecimal format. It features an interactive ASCII terminal interface with customizable colors.
+**A-Maze-ing** is a robust Python maze generator that creates perfect or imperfect mazes using the **Recursive Backtracker** algorithm. The program reads configuration from a text file, generates a random maze with a hidden "42" pattern, finds the shortest path from entry to exit, and outputs the result in hexadecimal format.
 
-**Main features:**
-- Random maze generation with seed-based reproducibility
-- Perfect maze support (single path between entry/exit)
-- BFS-based shortest path solver
-- Interactive terminal rendering with color customization
-- Hexadecimal wall encoding for validation
-- Reusable Python package for integration in other projects
+It features an **interactive ASCII terminal interface** with customizable colors.
+
+<p align="center">
+  <img src="tests/example.png" alt="Maze Example" width="600">
+  <br>
+  <em>Interactive Terminal Interface</em>
+</p>
+
+### Key Features
+- **Random Generation**: Seed-based reproducibility.
+- **Algorithm**: Recursive Backtracker for long, winding corridors.
+- **Solver**: BFS-based shortest path finder.
+- **Visuals**: Interactive terminal rendering with rich color customization.
+- **Modular**: Reusable Python package for integration in other projects.
+- **Validated**: Hexadecimal wall encoding for easy validation.
 
 ---
 
@@ -83,32 +95,31 @@ RENDER=ascii          # Render mode (ascii)
 
 ### Algorithm: Recursive Backtracker (DFS-based)
 
-The Recursive Backtracker is a depth-first search approach that carves paths through a grid of walls.
+The **Recursive Backtracker** is a depth-first search approach that carves paths through a grid of walls.
 
 **How it works:**
-1. Start at entry cell, mark as visited
-2. Randomly choose an unvisited neighbor (2 cells away)
-3. Carve the wall between current and neighbor
-4. Recursively visit the neighbor
-5. Backtrack when no unvisited neighbors remain
+1. Start at entry cell, mark as visited.
+2. Randomly choose an unvisited neighbor (2 cells away).
+3. Carve the wall between current and neighbor.
+4. Recursively visit the neighbor.
+5. Backtrack when no unvisited neighbors remain.
 
 **Implementation:** See `generate.py` - functions `generate()` and `backtrack()`
 
 ### Why This Algorithm?
 
-**Perfect maze guarantee** - Naturally creates mazes with a single path between any two points  
-**Long corridors** - Creates interesting, winding passages  
-**Simple & elegant** - Clean recursive implementation  
-**Easy to modify** - Adding imperfect mode (random wall removal) is straightforward  
-**Memory efficient** - No need for large frontier sets like Prim's algorithm
+- **Perfect maze guarantee**: Naturally creates mazes with a single path between any two points.
+- **Long corridors**: Creates interesting, winding passages.
+- **Simple & elegant**: Clean recursive implementation.
+- **Easy to modify**: Adding imperfect mode (random wall removal) is straightforward.
+- **Memory efficient**: No need for large frontier sets like Prim's algorithm.
 
-For imperfect mazes (`PERFECT=False`), after generation we randomly remove 5% of walls while ensuring corridors stay narrow (max 2 cells wide).
+> [!NOTE]
+> For imperfect mazes (`PERFECT=False`), after generation we randomly remove 5% of walls while ensuring corridors stay narrow (max 2 cells wide).
 
 ---
 
 ## Code Reusability
-
-### Reusable Package: `mazegen`
 
 ### Reusable Module: `module/`
 
@@ -181,8 +192,7 @@ render(maze)
 1. **Algorithm research** - Compared Prim's, Kruskal's, Recursive Backtracker, Eller's algorithms to choose the best fit
 2. **Code structure** - Discussed separation of concerns (parse, generate, solve, render, output)
 3. **Debugging** - Fixed wall coherence between neighboring cells and coordinate system issues
-4. **Documentation** - Generated type hints, docstrings, and README structure
-5. **Packaging** - Guidance on creating pip-installable modules with setuptools
+4. **Packaging** - Guidance on creating pip-installable modules with setuptools
 
 **What I wrote myself:**
 - Recursive backtracker implementation
@@ -226,15 +236,15 @@ render(maze)
 
 ### What Worked Well
 
-**Modular Architecture** — Splitting logic into dedicated modules (parse, generate, solve, render) made debugging much more efficient.
-**Incremental Testing** — Developing and testing components independently prevented cascade failures.
-**Interactive Menu** — The terminal-based UI makes the tool engaging and easy to navigate.
+- **Modular Architecture** — Splitting logic into dedicated modules (parse, generate, solve, render) made debugging much more efficient.
+- **Incremental Testing** — Developing and testing components independently prevented cascade failures.
+- **Interactive Menu** — The terminal-based UI makes the tool engaging and easy to navigate.
 
 ### Areas for Improvement
 
-**Type Hinting** — Type hints were added late in development; they should have been used from the start for better maintainability.
-**Automated Testing** — We relied heavily on manual testing; implementing unit tests (e.g., Pytest) would have increased reliability.
-**Performance** — Very large mazes (100x100+) can be slow due to Python's recursion depth limits.
+- **Type Hinting** — Type hints were added late in development; they should have been used from the start for better maintainability.
+- **Automated Testing** — We relied heavily on manual testing; implementing unit tests (e.g., Pytest) would have increased reliability.
+- **Performance** — Very large mazes (100x100+) can be slow due to Python's recursion depth limits.
 
 ### Tools Used
 
