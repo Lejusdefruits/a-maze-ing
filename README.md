@@ -15,7 +15,6 @@ It features an **interactive ASCII terminal interface** with customizable colors
 <p align="center">
   <img src="tests/example.png" alt="Maze Example" width="600">
   <br>
-  <em>Interactive Terminal Interface</em>
 </p>
 
 ### Key Features
