@@ -71,9 +71,11 @@ ENTRY=1,1             # Entry coordinates (x,y)
 EXIT=45,44            # Exit coordinates (x,y)
 OUTPUT_FILE=maze.txt  # Output filename
 PERFECT=True          # Perfect maze? (True/False)
+SEED=0                # Seed (0 = random, or specific string)
+RENDER=ascii          # Render mode (ascii)
 ```
 
-**Important:** Width and height must be impair numbers. If numbers are pair, the program automatically adds 1.
+**Important:** Width and height must be odd numbers. If numbers are even, the program automatically adds 1.
 
 ---
 
