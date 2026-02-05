@@ -1,4 +1,6 @@
 import sys
+import lzma
+import base64
 
 sys.set_int_max_str_digits(1000000000)
 
@@ -7,32 +9,36 @@ def get_seed(fichier_txt: str):
     with open(fichier_txt, "r") as f:
         contenu = f.read().strip().replace("\n", "|")
 
-    seed = 0
-    for char in contenu:
-        seed = seed * 256 + ord(char)
-
+    compressed_data = lzma.compress(contenu.encode())
+    seed = base64.b85encode(compressed_data).decode()
     return seed
 
 
 def get_lab(seed_str: str):
-    seed = int(seed_str)
-    if seed == 0:
-        return ""
+    try:
+        if not seed_str:
+            return ""
 
-    caracteres = []
-    while seed > 0:
-        caracteres.append(chr(seed % 256))
-        seed = seed // 256
+        compressed_data = base64.b85decode(seed_str)
+        decompressed_data = lzma.decompress(compressed_data)
+        contenu = decompressed_data.decode()
 
-    contenu = "".join(reversed(caracteres))
-    contenu = contenu.replace("|", "\n")
-
-    return contenu
+        contenu = contenu.replace("|", "\n")
+        return contenu
+    except (lzma.LZMAError, ValueError) as e:
+        # Re-raise with a more user-friendly message
+        if ("overflow" in str(e) or "bad" in str(e).lower()
+                or "padding" in str(e).lower()):
+            raise ValueError("Seed is corrupted or incomplete.")
+        raise ValueError(f"Invalid seed data: {e}")
+    except Exception as e:
+        raise ValueError(f"Unexpected error decoding seed: {e}")
 
 
 if __name__ == '__main__':
     seed = get_seed("output.txt")
+    print(f"Generated Seed: {seed}")
     labyrinthe = get_lab(seed)
     with open("labyrinthe_reconstitue.txt", "w") as f:
         f.write(labyrinthe)
-    print(get_seed('output.txt'))
+    print("Reconstruction successful.")

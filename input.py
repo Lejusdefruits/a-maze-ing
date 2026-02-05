@@ -1,12 +1,15 @@
 from output import Cell_output
 from models import Maze, Colors
-from parse import Entry, error
+from parse import Entry, error, MazeError
 
 
 def decode_hex_cell(hex_char: str) -> Cell_output:
     """Decode a hexadecimal character into a Cell_output object."""
     cell = Cell_output()
-    value = int(hex_char, 16)
+    try:
+        value = int(hex_char, 16)
+    except ValueError:
+        error(f"Invalid hex character: {hex_char}")
 
     cell.north = 1 if value & 1 else 0
     cell.east = 1 if value & 2 else 0
@@ -19,6 +22,9 @@ def decode_hex_cell(hex_char: str) -> Cell_output:
 def format_input(buffer: str) -> tuple[list[str], str, str, str]:
     """Extract grid, entry, exit, and solution from the input buffer."""
     lines = [line for line in buffer.split("\n") if line]
+
+    if len(lines) < 3:
+        error("Input file format invalid: missing entry, exit or solution")
 
     grid_lines = lines[:-3]
     entry = lines[-3]
@@ -47,14 +53,51 @@ def make_entry(
 
 def make_maze(maze: Maze, grid: list[list[Cell_output]]) -> None:
     """Reconstruct the maze grid based on the imported cell data."""
-    for m_line, g_line in zip(maze.grid, grid):
-        for i, (m_cell, g_cell) in enumerate(zip(m_line[:-1], g_line[:-1])):
-            if i > 0 and g_cell.west != 0:
-                m_line[i - 1].value = 0
-                m_line[i - 1].color = Colors.BLACK
-            if g_cell.east != 0:
-                m_line[i + 1].value = 0
-                m_line[i + 1].color = Colors.BLACK
+    width = maze.width
+    height = maze.height
+
+    # Visited matrix to track processed cells
+    visited = [[False for _ in range(width)] for _ in range(height)]
+
+    # Start from Entry which we know is a Path (value 2)
+    stack = [maze.entry]
+    visited[maze.entry[1]][maze.entry[0]] = True
+
+    while stack:
+        x, y = stack.pop()
+        current_cell = maze.grid[y][x]
+        hex_data = grid[y][x]
+
+        # Determine if current cell is Wall
+        cur_is_wall = current_cell.value in [1, 42]
+
+        # Define neighbors: name, x, y, separator_value
+        neighbors = [
+            ("north", x, y - 1, hex_data.north),
+            ("south", x, y + 1, hex_data.south),
+            ("east", x + 1, y, hex_data.east),
+            ("west", x - 1, y, hex_data.west)
+        ]
+
+        for _, nx, ny, sep in neighbors:
+            if 0 <= nx < width and 0 <= ny < height:
+                if not visited[ny][nx]:
+                    visited[ny][nx] = True
+                    target_cell = maze.grid[ny][nx]
+
+                    # Separator 1 means types are different, 0 means same
+                    neigh_is_wall = cur_is_wall != (sep == 1)
+
+                    if neigh_is_wall:
+                        if target_cell.value not in [2, 3, 42]:
+                            target_cell.value = 1
+                            target_cell.color = Colors.WHITE
+                    else:
+                        if target_cell.value not in [2, 3, 42]:
+                            target_cell.value = 0
+                            target_cell.color = Colors.BLACK
+
+                    stack.append((nx, ny))
 
 
 def make_solution(maze: Maze, solution: str) -> None:
@@ -81,9 +124,12 @@ def make_solution(maze: Maze, solution: str) -> None:
 def inp(seed: str) -> Maze:
     """Import and reconstruct a maze from a seed string."""
     from seed import get_lab
-    print(f"je pars de la seed: {seed}")
-
-    buffer = get_lab(seed)
+    try:
+        buffer = get_lab(seed)
+    except ValueError as e:
+        error(str(e))
+    except Exception as e:
+        error(f"Error processing seed: {e}")
 
     grid_lines, entry, exit, solution = format_input(buffer)
 
@@ -107,6 +153,27 @@ def inp(seed: str) -> Maze:
 
 
 if __name__ == "__main__":
+    import sys
     from seed import get_seed
 
-    maze = inp(get_seed("output.txt"))
+    if len(sys.argv) != 2:
+        print("Usage: python3 input.py <filename>")
+        sys.exit(1)
+
+    try:
+        file_name = sys.argv[1]
+        seed = get_seed(file_name)
+        print(f"{seed}")
+        maze = inp(str(seed))
+    except FileNotFoundError:
+        print(f"Error: File '{file_name}' not found.")
+        sys.exit(1)
+    except PermissionError:
+        print(f"Error: Permission denied accessing '{file_name}'.")
+        sys.exit(1)
+    except MazeError as e:
+        print(e)
+        sys.exit(1)
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        sys.exit(1)

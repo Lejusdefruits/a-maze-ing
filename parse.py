@@ -1,13 +1,17 @@
 from pathlib import Path
-from sys import exit
 
 
 from typing import NoReturn
 
 
+class MazeError(Exception):
+    """Custom exception for Maze application errors."""
+    pass
+
+
 def error(the_error: str) -> NoReturn:
-    """Print an error message and exit the program."""
-    exit("Error : " + the_error)
+    """Raise a MazeError with the given message."""
+    raise MazeError("Error : " + the_error)
 
 
 class Entry:
@@ -44,33 +48,57 @@ class Entry:
             "SEED"
         ]
 
-        print(entry_tab)
         data = dict(entry_tab)
         data.setdefault("RENDER", "ascii")
         self.validate(entry_tab)
-        self.width = int(data["WIDTH"])
-        self.height = int(data["HEIGHT"])
-        self.entry = tuple(map(int, data["ENTRY"].replace(",", " ").split()))
-        self.exit = tuple(map(int, data["EXIT"].replace(",", " ").split()))
+        try:
+            self.width = int(data["WIDTH"])
+        except ValueError:
+            error(f"Invalid WIDTH value: '{data['WIDTH']}'")
+
+        try:
+            self.height = int(data["HEIGHT"])
+        except ValueError:
+            error(f"Invalid HEIGHT value: '{data['HEIGHT']}'")
+
+        try:
+            self.entry = tuple(
+                map(int, data["ENTRY"].replace(",", " ").split()))
+            if len(self.entry) != 2:
+                raise ValueError
+        except ValueError:
+            error(f"Invalid ENTRY format: '{data['ENTRY']}'. Expected 'x, y'")
+
+        try:
+            self.exit = tuple(map(int, data["EXIT"].replace(",", " ").split()))
+            if len(self.exit) != 2:
+                raise ValueError
+        except ValueError:
+            error(f"Invalid EXIT format: '{data['EXIT']}'. Expected 'x, y'")
         self.output_file = data["OUTPUT_FILE"]
         self.perfect = data["PERFECT"] == "True"
         self.render = data["RENDER"]
         self.seed = data["SEED"]
 
-    def print_o(self) -> None:
-        """Display the current maze configuration."""
-        print("\n" + "=" * 30)
-        print(f"{'MAZE CONFIGURATION':^30}")
-        print("=" * 30)
-        print(f"  Dimensions : {self.width}x{self.height}")
-        print(f"  Entry      : {self.entry}")
-        print(f"  Exit       : {self.exit}")
-        print("-" * 30)
-        print(f"  Perfect    : {self.perfect}")
-        print(f"  Render     : {self.render}")
-        print(f"  Output     : {self.output_file}")
-        print(f"  Seed     : {self.seed}")
-        print("=" * 30 + "\n")
+    def __str__(self) -> str:
+        """Return the string representation of the maze configuration."""
+        return (
+            "\n" + "=" * 30 + "\n"
+            f"{'MAZE CONFIGURATION':^30}\n"
+            + "=" * 30 + "\n"
+            f"  Dimensions : {self.width}x{self.height}\n"
+            f"  Entry      : {self.entry}\n"
+            f"  Exit       : {self.exit}\n"
+            + "-" * 30 + "\n"
+            f"  Perfect    : {self.perfect}\n"
+            f"  Render     : {self.render}\n"
+            f"  Output     : {self.output_file}\n"
+            f"  Seed     : {self.seed}\n"
+            + "=" * 30 + "\n"
+        )
+
+    def __repr__(self) -> str:
+        return self.__str__()
 
 
 def default_config(file_name: str) -> str:
@@ -94,10 +122,10 @@ def format_read(buffer: str) -> list[tuple[str, str]]:
             continue
         if len(line) == 0:
             continue
-        if len(line.split("=")) != 2:
-            error("Format of entry file not valid")
+        if len(line.split("=", 1)) != 2:
+            error(f"Invalid format line: '{line}'. Expected KEY=VALUE")
         cleared_lines.append(
-            (line.split("=")[0].strip(), line.split("=")[1].strip()))
+            (line.split("=", 1)[0].strip(), line.split("=", 1)[1].strip()))
     return cleared_lines
 
 
@@ -117,15 +145,30 @@ def read(file_name: str) -> str:
     return buffer
 
 
-def parse_coords(buffer: Entry) -> bool:
+def validate_coords(buffer: Entry) -> None:
     """Check if entry and exit coordinates are within bounds."""
-    return (
-        buffer.exit[0] >= buffer.width
-        or buffer.exit[1] >= buffer.height
-        or buffer.entry[0] >= buffer.width
-        or buffer.entry[1] >= buffer.height
-        or any(n < 0 for n in [*buffer.entry, *buffer.exit])
-    )
+    if (
+        buffer.entry[0] <= 0
+        or buffer.entry[0] >= buffer.width - 1
+        or buffer.entry[1] <= 0
+        or buffer.entry[1] >= buffer.height - 1
+    ):
+        error(
+            f"Entry {buffer.entry} cannot be on the border/walls "
+            f"(Dimensions: {buffer.width}x{buffer.height})"
+        )
+    if (
+        buffer.exit[0] <= 0
+        or buffer.exit[0] >= buffer.width - 1
+        or buffer.exit[1] <= 0
+        or buffer.exit[1] >= buffer.height - 1
+    ):
+        error(
+            f"Exit {buffer.exit} cannot be on the border/walls "
+            f"(Dimensions: {buffer.width}x{buffer.height})"
+        )
+    if any(n < 0 for n in [*buffer.entry, *buffer.exit]):
+        error("Coordinates cannot be negative")
 
 
 def parse(argv: list[str]) -> Entry:
@@ -133,22 +176,23 @@ def parse(argv: list[str]) -> Entry:
     if len(argv) != 2:
         error("Usage: 'python3 a_maze_ing.py config.txt'")
     buffer = Entry(format_read(read(argv[1])))
-    if parse_coords(buffer):
-        error("Coordinates not valid")
+
     if buffer.width % 2 != 0:
         buffer.width = buffer.width
     else:
         print(
-            f"Width: {buffer.width} is pair "
-            "so algo is not gonna work i add one"
+            f"Warning provided Width: {buffer.width} is even. "
+            "Adjusting to odd number (Width + 1) for algorithm compatibility."
         )
         buffer.width += 1
     if buffer.height % 2 != 0:
         buffer.height = buffer.height
     else:
         print(
-            f"Height: {buffer.height} is pair "
-            "so algo is not gonna work i add one"
+            f"Warning provided Height: {buffer.height} is even. "
+            "Adjusting to odd number (Height + 1) for algorithm compatibility."
         )
         buffer.height += 1
+
+    validate_coords(buffer)
     return buffer

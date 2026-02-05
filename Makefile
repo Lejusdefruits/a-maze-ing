@@ -7,7 +7,7 @@ PY = $(BIN)/python
 FLAKE8 = $(BIN)/flake8
 MYPY = $(BIN)/mypy
 REQUIREMENTS = requirements.txt
-MAIN = main.py
+MAIN = a-maze-ing.py
 CONFIG = config.txt
 OUTPUT = output.txt
 DIST_DIR = dist
@@ -17,7 +17,7 @@ PYCACHE = __pycache__
 MYPY_CACHE = .mypy_cache
 
 # Targets
-.PHONY: all install run lint clean venv
+.PHONY: all install run lint clean fclean re venv
 
 all: install run
 
@@ -44,4 +44,9 @@ clean:
 	rm -rf $(EGG_INFO)
 	rm -rf */$(PYCACHE)
 	rm -f $(OUTPUT)
+
+fclean: clean
 	rm -rf $(VENV)
+	find . -maxdepth 1 -type f -name "*.txt" ! -name "$(REQUIREMENTS)" -delete
+
+re: fclean all

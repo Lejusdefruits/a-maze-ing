@@ -15,6 +15,7 @@ It features an **interactive ASCII terminal interface** with customizable colors
 <p align="center">
   <img src="tests/example.png" alt="Maze Example" width="600">
   <br>
+  <em>Interactive Terminal Interface</em>
 </p>
 
 ### Key Features
@@ -23,6 +24,8 @@ It features an **interactive ASCII terminal interface** with customizable colors
 - **Solver**: BFS-based shortest path finder.
 - **Visuals**: Interactive terminal rendering with rich color customization.
 - **Modular**: Reusable Python package for integration in other projects.
+- **Optimized Seed**: Ultra-compact seed using **LZMA compression** + **Base85 encoding** (reversible).
+- **Robust Error Handling**: Clear, user-friendly error messages (no raw tracebacks).
 - **Validated**: Hexadecimal wall encoding for easy validation.
 
 ---
@@ -44,7 +47,7 @@ make install
 
 ```bash
 # Run the program
-python3 a_maze_ing.py config.txt
+python3 a-maze-ing.py config.txt
 
 # Or use Makefile
 make run
@@ -54,10 +57,10 @@ make run
 
 - `make install` - Install dependencies
 - `make run` - Execute the main script
-- `make debug` - Run with Python debugger (pdb)
-- `make clean` - Remove temporary files (__pycache__, .mypy_cache)
+- `make clean` - Remove temporary files (__pycache__, .mypy_cache, output.txt)
+- `make fclean` - Execute `clean` AND remove the virtual environment (`venv`) and all .txt files (except requirements.txt)
+- `make re` - Rebuild everything (`fclean` + `all`)
 - `make lint` - Run flake8 and mypy type checking
-- `make lint-strict` - Run strict linting (optional)
 
 ### Interactive Menu
 
@@ -66,6 +69,26 @@ Once running, you can:
 2. Show/hide the solution path
 3. Customize colors (walls, paths, entry, exit, solution, "42")
 4. Quit and save to output file
+
+### Seed & Reproducibility
+
+The project includes a powerful seed system ensuring 100% reproducibility.
+
+**1. Generation:**
+In `config.txt`, set `SEED` to:
+- `0`: Generates a random seed.
+- `ANY_STRING`: Uses this string as the seed to generate a deterministic maze.
+
+**2. Reconstruction (Reverse Engineering):**
+Every generated maze has a unique compressed seed (LZMA + Base85) printed in the console and implicit in the output.
+To reconstruct a maze perfectly from an output file:
+
+```bash
+# Reconstruct maze from output.txt content
+python3 input.py output.txt
+```
+
+This will parse the file, decode the seed, and rebuild the exact same maze structure and solution.
 
 ---
 

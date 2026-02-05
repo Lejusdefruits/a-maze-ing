@@ -1,4 +1,5 @@
 from models import Maze
+from parse import error
 
 
 class Cell_output:
@@ -41,15 +42,27 @@ def get_neighbors_map(
 ) -> dict[str, int]:
     """Determine wall status based on neighbor cell values."""
     res = {"north": 1, "south": 1, "west": 1, "east": 1}
+    self_is_wall = grid[y][x].value in [1, 42]
 
-    if y > 0 and grid[y - 1][x].value in [1, 42]:
-        res["north"] = 0
-    if y < height - 1 and grid[y + 1][x].value in [1, 42]:
-        res["south"] = 0
-    if x > 0 and grid[y][x - 1].value in [1, 42]:
-        res["west"] = 0
-    if x < width - 1 and grid[y][x + 1].value in [1, 42]:
-        res["east"] = 0
+    # Check North
+    if y > 0:
+        neigh_is_wall = grid[y - 1][x].value in [1, 42]
+        res["north"] = 1 if self_is_wall != neigh_is_wall else 0
+
+    # Check South
+    if y < height - 1:
+        neigh_is_wall = grid[y + 1][x].value in [1, 42]
+        res["south"] = 1 if self_is_wall != neigh_is_wall else 0
+
+    # Check West
+    if x > 0:
+        neigh_is_wall = grid[y][x - 1].value in [1, 42]
+        res["west"] = 1 if self_is_wall != neigh_is_wall else 0
+
+    # Check East
+    if x < width - 1:
+        neigh_is_wall = grid[y][x + 1].value in [1, 42]
+        res["east"] = 1 if self_is_wall != neigh_is_wall else 0
 
     return res
 
@@ -93,11 +106,14 @@ def outpoute(maze: Maze) -> None:
     """Write the maze structure and solution to the output file."""
     grid = parse_grid(maze)
 
-    with open(maze.output_file, "w") as f:
-        for row in grid:
-            line = "".join(get_hex_cell(cell_obj) for cell_obj in row)
-            f.write(line + "\n")
-        f.write("\n")
-        f.write(f"{maze.entry[0]} {maze.entry[1]}\n")
-        f.write(f"{maze.exit[0]} {maze.exit[1]}\n")
-        f.write(f"{get_solver(maze)}\n")
+    try:
+        with open(maze.output_file, "w") as f:
+            for row in grid:
+                line = "".join(get_hex_cell(cell_obj) for cell_obj in row)
+                f.write(line + "\n")
+            f.write("\n")
+            f.write(f"{maze.entry[0]}, {maze.entry[1]}\n")
+            f.write(f"{maze.exit[0]}, {maze.exit[1]}\n")
+            f.write(f"{get_solver(maze)}\n")
+    except OSError as e:
+        error(f"Failed to write output file: {e}")
