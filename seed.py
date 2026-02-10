@@ -26,7 +26,6 @@ def get_lab(seed_str: str):
         contenu = contenu.replace("|", "\n")
         return contenu
     except (lzma.LZMAError, ValueError) as e:
-        # Re-raise with a more user-friendly message
         if ("overflow" in str(e) or "bad" in str(e).lower()
                 or "padding" in str(e).lower()):
             raise ValueError("Seed is corrupted or incomplete.")

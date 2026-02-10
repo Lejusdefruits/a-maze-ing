@@ -32,8 +32,6 @@ def get_hex_cell(cell_obj: Cell_output) -> str:
         value += 4
     if cell_obj.west:
         value += 8
-    if format(value, "X") == 'F':
-        pass
     return format(value, "X")
 
 
@@ -44,22 +42,18 @@ def get_neighbors_map(
     res = {"north": 1, "south": 1, "west": 1, "east": 1}
     self_is_wall = grid[y][x].value in [1, 42]
 
-    # Check North
     if y > 0:
         neigh_is_wall = grid[y - 1][x].value in [1, 42]
         res["north"] = 1 if self_is_wall != neigh_is_wall else 0
 
-    # Check South
     if y < height - 1:
         neigh_is_wall = grid[y + 1][x].value in [1, 42]
         res["south"] = 1 if self_is_wall != neigh_is_wall else 0
 
-    # Check West
     if x > 0:
         neigh_is_wall = grid[y][x - 1].value in [1, 42]
         res["west"] = 1 if self_is_wall != neigh_is_wall else 0
 
-    # Check East
     if x < width - 1:
         neigh_is_wall = grid[y][x + 1].value in [1, 42]
         res["east"] = 1 if self_is_wall != neigh_is_wall else 0

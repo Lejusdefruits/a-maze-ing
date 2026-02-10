@@ -76,7 +76,14 @@ class Entry:
         except ValueError:
             error(f"Invalid EXIT format: '{data['EXIT']}'. Expected 'x, y'")
         self.output_file = data["OUTPUT_FILE"]
-        self.perfect = data["PERFECT"] == "True"
+        if (
+            data["PERFECT"].upper() != "TRUE"
+            and data["PERFECT"].upper() != "FALSE"
+        ):
+            error("Attribut perfect can only be True or False")
+        if self.entry == self.exit:
+            error("Entry and Exit cannot be in the same cell")
+        self.perfect = data["PERFECT"].upper() == "TRUE"
         self.render = data["RENDER"]
         self.seed = data["SEED"]
 

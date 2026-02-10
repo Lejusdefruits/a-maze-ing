@@ -1,27 +1,34 @@
 import sys
-from sys import argv
-from random import shuffle, randint
-from parse import parse, Entry, MazeError
+from random import randint, shuffle
 from time import sleep
-from models import Maze, Colors
-from generate import generate
-from solver import solver
-from output import outpoute
 
+from generate import generate
+from input import inp
+from models import Colors, Maze
+from output import outpoute
+from parse import Entry, MazeError, parse
+from render_ascii import render
+from solver import solver
 
 sys.setrecursionlimit(100000)
 try:
     sys.set_int_max_str_digits(1000000000)
 except AttributeError:
-    pass  # Older python versions don't have this but also don't have the limit
+    pass
 
 
 def get_tab_color(
-    new_color: str, id: str, elements: list[str], current_theme: list[str],
-    rd: bool, all_colors: list = []
+    new_color: str,
+    element_id: str,
+    elements: list[str],
+    current_theme: list[str],
+    rd: bool,
+    all_colors: list[str] | None = None,
 ) -> list[str]:
-    """Return a new theme list with the updated color for the element."""
-    idx = int(id) - 1
+    """return a new theme list with the updated color for the element"""
+    if all_colors is None:
+        all_colors = []
+    idx = int(element_id) - 1
     result = [current_theme[i] for i in range(len(elements))]
     if rd:
         result[idx] = all_colors[randint(0, len(all_colors) - 1)]
@@ -31,9 +38,7 @@ def get_tab_color(
 
 
 def apply_theme(maze: Maze, theme: list[str], show_sol: bool) -> None:
-    """Apply the selected color theme to the maze grid cells."""
-    from render_ascii import render
-
+    """apply the selected color theme to the maze grid cells"""
     val_map = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 42: 5}
     for row in maze.grid:
         for cell in row:
@@ -41,7 +46,6 @@ def apply_theme(maze: Maze, theme: list[str], show_sol: bool) -> None:
             if idx is not None:
                 if cell.value == 4 and not show_sol:
                     cell.color = theme[0]
-
                 else:
                     if theme[idx] is not None:
                         if cell.value == 4:
@@ -50,12 +54,8 @@ def apply_theme(maze: Maze, theme: list[str], show_sol: bool) -> None:
                         cell.color = theme[idx]
 
 
-def color_menu(
-    m: Maze, show_sol: bool, current_theme: list[str]
-) -> list[str]:
-    """Handle the color selection menu interactions."""
-    from render_ascii import render
-
+def color_menu(m: Maze, show_sol: bool, current_theme: list[str]) -> list[str]:
+    """handle the color selection menu interactions"""
     all_cols = list(Colors.ALL)
     while True:
         print("=======Color menu=======")
@@ -78,9 +78,9 @@ def color_menu(
                 apply_theme(m, current_theme, show_sol)
                 render(m)
             elif (
-                choose_elt.isdigit()
-                and 1 <= int(choose_elt) <= len(m.elements)
-            ):
+                 choose_elt.isdigit()
+                 and 1 <= int(choose_elt) <= len(m.elements)
+                 ):
                 current_theme = get_tab_color(
                     "", choose_elt, m.elements, current_theme, True, all_cols
                 )
@@ -96,9 +96,9 @@ def color_menu(
             choose_elt = input("\n\n>> ")
 
             if not (
-                choose_elt.isdigit()
-                and 1 <= int(choose_elt) <= len(m.elements)
-            ):
+                    choose_elt.isdigit()
+                    and 1 <= int(choose_elt) <= len(m.elements)
+                    ):
                 print("Invalid element choice. Please try again.")
                 continue
 
@@ -115,11 +115,7 @@ def color_menu(
 
             chosen_color_code = Colors.ALL[int(choose_color) - 1]
             current_theme = get_tab_color(
-                chosen_color_code,
-                choose_elt,
-                m.elements,
-                current_theme,
-                False
+                chosen_color_code, choose_elt, m.elements, current_theme, False
             )
             apply_theme(m, current_theme, show_sol)
             render(m)
@@ -132,12 +128,9 @@ def color_menu(
 
 
 def menu(args: Entry) -> None:
-    """Main menu loop for the application."""
-    from render_ascii import render
-
+    """main menu loop for the application"""
     m = Maze(args)
-    if m.seed != '0':
-        from input import inp
+    if m.seed != "0":
         m = inp(m.seed)
         m.place_42()
     else:
@@ -166,8 +159,7 @@ def menu(args: Entry) -> None:
         if choice == "1":
             try:
                 m = Maze(args)
-                if m.seed != '0':
-                    from input import inp
+                if m.seed != "0":
                     m = inp(m.seed)
                     m.place_42()
                 else:
@@ -194,7 +186,7 @@ def menu(args: Entry) -> None:
 
 if __name__ == "__main__":
     try:
-        args = parse(argv)
+        args = parse(sys.argv)
         menu(args)
     except MazeError as e:
         print(e)
